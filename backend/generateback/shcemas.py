@@ -4,6 +4,7 @@ class CreateUser(BaseModel):
     username  : str
     passwordhash : str
 class ProfileUser(BaseModel):
+    user_id : int 
     Age : int
     BusinessTravel: str
     Department: str
@@ -27,7 +28,7 @@ class ProfileUser(BaseModel):
     YearsInCurrentRole: int
     YearsSinceLastPromotion: int
     YearsWithCurrManager: int
-    
+
 class PredictionResponse(BaseModel):
     churn_probability: float
 

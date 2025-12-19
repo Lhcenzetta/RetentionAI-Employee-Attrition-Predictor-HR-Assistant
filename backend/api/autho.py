@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer 
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer 
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from services.gemini_client import generate_retention_actions
@@ -22,8 +22,10 @@ router = APIRouter()
 
 model = joblib.load("/Users/lait-zet/Desktop/RetentionAI-Employee-Attrition-Predictor-HR-Assistant/ml/model_predictor.pkl")
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 pwd_password = CryptContext(schemes=["bcrypt"])
+
 def creat_passwor(passw):
     return pwd_password.hash(passw)
 
@@ -89,29 +91,48 @@ def sing_in(user : shcemas.CreateUser , db: Session = Depends(get_db)):
     print(token)
     return {"token" : token , "token_type": "bearer"}
 
-@router.post("/predict_profile", response_model=shcemas.PredictionResponse)
-def test_model(profile : shcemas.ProfileUser, db: Session = Depends(get_db)):
 
-    #how to get a exist new user from database
-    current_user = db.query(User).filter(User.username == username).first()
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Utilisateur introuvable")
-    
-
-    data = profile.model_dump()
+@router.post("/predict_profile")
+def test_model(profile : shcemas.ProfileUser, db: Session = Depends(get_db), ):
+    data = {
+    "Age": profile.Age,
+    "BusinessTravel": profile.BusinessTravel,
+    "Department": profile.Department,
+    "Education": profile.Education,
+    "EducationField": profile.EducationField,
+    "EnvironmentSatisfaction": profile.EnvironmentSatisfaction,
+    "Gender": profile.Gender,
+    "JobInvolvement": profile.JobInvolvement,
+    "JobLevel": profile.JobLevel,
+    "JobRole": profile.JobRole,
+    "JobSatisfaction": profile.JobSatisfaction,
+    "MaritalStatus": profile.MaritalStatus,
+    "MonthlyIncome": profile.MonthlyIncome,
+    "NumCompaniesWorked": profile.NumCompaniesWorked,
+    "OverTime": profile.OverTime,
+    "PerformanceRating": profile.PerformanceRating,
+    "RelationshipSatisfaction": profile.RelationshipSatisfaction,
+    "TotalWorkingYears": profile.TotalWorkingYears,
+    "WorkLifeBalance": profile.WorkLifeBalance,
+    "YearsAtCompany": profile.YearsAtCompany,
+    "YearsInCurrentRole": profile.YearsInCurrentRole,
+    "YearsSinceLastPromotion": profile.YearsSinceLastPromotion,
+    "YearsWithCurrManager": profile.YearsWithCurrManager
+}
     data_df = pd.DataFrame([data])
     prediction = model.predict_proba(data_df)
 
     churn_probability = round(float(prediction[0][1]), 2)
 
-    #stoke this prediction and user
+
     new_history = History(
-        
+        user_id=profile.user_id,
+        employeeid=None,
+        timestamp=int(datetime.utcnow().timestamp()),
+        probability=churn_probability
     )
 
-    return {
-        "churn_probability": churn_probability
-    }
+    return new_history
 
 
 
@@ -153,47 +174,3 @@ pour le retenir dans l’entreprise.
 Réponds uniquement par 3 actions, une par ligne.
 """
 
-
-    actions = generate_retention_actions(prompt)
-
-    return {
-        "churn_probability": churn_probability,
-        "retention_plan": actions
-    }
-
-
-
-
-# @app.router("/gemina_action")
-# def gemeia_action():
-#     if churn_probability <= 0.5:
-#         return {"retention_plan": []}
-    
-#     # Generate retention plan using AI
-#     prompt = f"""Agis comme un expert RH. 
-
-# Voici les informations sur l'employé :
-# - Age : {profile_user.Age}
-# - Département : {profile_user.Department}
-# - Rôle : {profile_user.JobRole}
-# - Satisfaction au travail : {profile_user.JobSatisfaction}/4
-# - Performance : {profile_user.PerformanceRating}/4
-# - Équilibre vie professionnelle/personnelle : {profile_user.WorkLifeBalance}/4
-# - Ancienneté dans l'entreprise : {profile_user.YearsAtCompany} ans
-# - Salaire mensuel : {profile_user.MonthlyIncome} €
-# - Voyages d'affaires : {profile_user.BusinessTravel}
-# - Heures supplémentaires : {'Oui' if profile_user.OverTime else 'Non'}
-
-# Contexte : ce salarié a un risque élevé de départ avec une probabilité de churn de {churn_probability * 100}%.
-
-# Tâche : propose 3 actions concrètes et personnalisées pour le retenir dans l'entreprise, en tenant compte de son rôle, sa satisfaction, sa performance et son équilibre vie professionnelle/personnelle.  
-# Rédige les actions de façon claire et opérationnelle pour un manager RH.
-
-# Réponds uniquement avec les 3 actions, une par ligne, sans numérotation."""
-    
-#     ai_model = genai.GenerativeModel('gemini-1.0-pro')
-#     response = ai_model.generate_content(prompt)
-#     actions = response.text.strip().split('\n')[:3]
-#     actions = [action.strip() for action in actions if action.strip()]
-    
-#     return {"retention_plan": actions}
