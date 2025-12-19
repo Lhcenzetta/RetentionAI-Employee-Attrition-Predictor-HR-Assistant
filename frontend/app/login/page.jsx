@@ -1,12 +1,14 @@
 "use client";
 import React from 'react';
+import { useRouter } from 'next/navigation';
 export default function signin() {
     const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const router = useRouter();
     const handlesubmit = async (e) => {
       console.log(username,password);
         e.preventDefault();
-        const response = await fetch('http://127.0.0.1:8000/route/login', {
+        const response = await fetch('http://127.0.0.1:8000/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -22,6 +24,10 @@ export default function signin() {
         } else {
             alert('Login failed: ' + data.message);
         }
+        const token = data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user_id', data.user_id);
+        router.push('/dashboard');
     };
   return (
     <div>

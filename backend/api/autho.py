@@ -89,41 +89,40 @@ def sing_in(user : shcemas.CreateUser , db: Session = Depends(get_db)):
     paylod = {"username" : existe_user.username}
     token = creat_token(paylod)
     print(token)
-    return {"token" : token , "token_type": "bearer"}
+    return {"token" : token , "token_type": "bearer" , "user_id" : existe_user.id}
 
 
 @router.post("/predict_profile")
-def test_model(profile : shcemas.ProfileUser, db: Session = Depends(get_db), ):
+def test_model(profile : shcemas.ProfileUser, db: Session = Depends(get_db),dict = Depends(verify_token)):
     data = {
-    "Age": profile.Age,
-    "BusinessTravel": profile.BusinessTravel,
-    "Department": profile.Department,
-    "Education": profile.Education,
-    "EducationField": profile.EducationField,
-    "EnvironmentSatisfaction": profile.EnvironmentSatisfaction,
-    "Gender": profile.Gender,
-    "JobInvolvement": profile.JobInvolvement,
-    "JobLevel": profile.JobLevel,
-    "JobRole": profile.JobRole,
-    "JobSatisfaction": profile.JobSatisfaction,
-    "MaritalStatus": profile.MaritalStatus,
-    "MonthlyIncome": profile.MonthlyIncome,
-    "NumCompaniesWorked": profile.NumCompaniesWorked,
-    "OverTime": profile.OverTime,
-    "PerformanceRating": profile.PerformanceRating,
-    "RelationshipSatisfaction": profile.RelationshipSatisfaction,
-    "TotalWorkingYears": profile.TotalWorkingYears,
-    "WorkLifeBalance": profile.WorkLifeBalance,
-    "YearsAtCompany": profile.YearsAtCompany,
-    "YearsInCurrentRole": profile.YearsInCurrentRole,
-    "YearsSinceLastPromotion": profile.YearsSinceLastPromotion,
-    "YearsWithCurrManager": profile.YearsWithCurrManager
-}
+        "Age": profile.Age,
+        "BusinessTravel": profile.BusinessTravel,
+        "Department": profile.Department,
+        "Education": profile.Education,
+        "EducationField": profile.EducationField,
+        "EnvironmentSatisfaction": profile.EnvironmentSatisfaction,
+        "Gender": profile.Gender,
+        "JobInvolvement": profile.JobInvolvement,
+        "JobLevel": profile.JobLevel,
+        "JobRole": profile.JobRole,
+        "JobSatisfaction": profile.JobSatisfaction,
+        "MaritalStatus": profile.MaritalStatus,
+        "MonthlyIncome": profile.MonthlyIncome,
+        "NumCompaniesWorked": profile.NumCompaniesWorked,
+        "OverTime": "Yes" if profile.OverTime else "No",
+        "PerformanceRating": profile.PerformanceRating,
+        "RelationshipSatisfaction": profile.RelationshipSatisfaction,
+        "TotalWorkingYears": profile.TotalWorkingYears,
+        "WorkLifeBalance": profile.WorkLifeBalance,
+        "YearsAtCompany": profile.YearsAtCompany,
+        "YearsInCurrentRole": profile.YearsInCurrentRole,
+        "YearsSinceLastPromotion": profile.YearsSinceLastPromotion,
+        "YearsWithCurrManager": profile.YearsWithCurrManager
+    }
+
     data_df = pd.DataFrame([data])
     prediction = model.predict_proba(data_df)
-
     churn_probability = round(float(prediction[0][1]), 2)
-
 
     new_history = History(
         user_id=profile.user_id,
@@ -132,45 +131,63 @@ def test_model(profile : shcemas.ProfileUser, db: Session = Depends(get_db), ):
         probability=churn_probability
     )
 
-    return new_history
+    db.add(new_history)
+    db.commit()
+    db.refresh(new_history)
 
+    return {
+        "churn_probability": churn_probability,
+        "history_id": new_history.id
+    }
 
+@router.post("/generate-retention-plan")
+def generate_retention_plan(payload: shcemas.RetentionRequest,db: Session = Depends(get_db),dict = Depends(verify_token)):
+    user = db.query(User).filter(User.id == payload.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-@router.post("/generate-retention-plan",response_model=shcemas.RetentionPlanResponse)
-def generate_retention_plan(profile: shcemas.ProfileUser):
-    data_df = pd.DataFrame([profile.dict()])
-    prediction = model.predict_proba(data_df)
-    churn_probability = round(float(prediction[0][1]), 2)
+    last_prediction = (
+        db.query(History)
+        .filter(History.user_id == payload.user_id)
+        .order_by(History.timestamp.desc())
+        .first()
+    )
+
+    if not last_prediction:
+        raise HTTPException(
+            status_code=404,
+            detail="No prediction found for this user"
+        )
+
+    churn_probability = last_prediction.probability
 
     if churn_probability <= 0.5:
         return {
+            "user_id": payload.user_id,
             "churn_probability": churn_probability,
             "retention_plan": []
         }
-    
+
+  
     prompt = f"""
 Agis comme un expert RH.
 
-Voici les informations sur l’employé :
-- Age : {profile.Age}
-- Département : {profile.Department}
-- Rôle : {profile.JobRole}
-- Satisfaction au travail : {profile.JobSatisfaction}/4
-- Performance : {profile.PerformanceRating}/4
-- Équilibre vie pro/perso : {profile.WorkLifeBalance}/4
-- Ancienneté : {profile.YearsAtCompany} ans
-- Salaire mensuel : {profile.MonthlyIncome}
-- Voyages professionnels : {profile.BusinessTravel}
-- Heures supplémentaires : {'Oui' if profile.OverTime else 'Non'}
-
 Contexte :
-Ce salarié présente un risque élevé de départ
+Un salarié identifié par le système présente un risque élevé de départ
 (churn_probability = {churn_probability * 100}%).
 
 Tâche :
-Propose 3 actions concrètes et personnalisées
-pour le retenir dans l’entreprise.
+Propose 3 actions concrètes et applicables
+pour améliorer la rétention de ce salarié.
 
-Réponds uniquement par 3 actions, une par ligne.
+Réponds uniquement par 3 actions,
+une par ligne.
 """
 
+    actions = generate_retention_actions(prompt)
+
+    return {
+        "user_id": payload.user_id,
+        "churn_probability": churn_probability,
+        "retention_plan": actions
+    }

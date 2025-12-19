@@ -32,6 +32,8 @@ class ProfileUser(BaseModel):
 class PredictionResponse(BaseModel):
     churn_probability: float
 
+class RetentionRequest(BaseModel):
+    user_id: int
 
 class RetentionPlanResponse(BaseModel):
     churn_probability: float
