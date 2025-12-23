@@ -20,9 +20,9 @@ ALGORITHM = "HS256"
 
 router = APIRouter()
 
-model = joblib.load("/Users/lait-zet/Desktop/RetentionAI-Employee-Attrition-Predictor-HR-Assistant/ml/model_predictor.pkl")
+model = joblib.load("/Users/lait-zet/Desktop/breif/ml/model_predictor.pkl")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 pwd_password = CryptContext(schemes=["bcrypt"])
 
