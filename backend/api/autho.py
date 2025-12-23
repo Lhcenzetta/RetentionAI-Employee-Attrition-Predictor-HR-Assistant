@@ -22,7 +22,6 @@ router = APIRouter()
 
 model = joblib.load("/Users/lait-zet/Desktop/breif/ml/model_predictor.pkl")
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 pwd_password = CryptContext(schemes=["bcrypt"])
 
