@@ -79,15 +79,6 @@ RetentionAI-Employee-Attrition-Predictor-HR-Assistant/
 │   └── graphs/                 # Generated visualizations
 └── venv1/                      # Python virtual environment
 ```
-
-## Prerequisites
-
-Before running this application, ensure you have the following installed:
-
-- **Docker**: Version 20.10 or later
-- **Docker Compose**: Version 2.0 or later
-- **Git**: For cloning the repository
-
 ## Installation
 
 1. **Clone the repository:**
@@ -146,20 +137,5 @@ To run the ML pipeline locally:
 2. Activate the virtual environment: `source venv1/bin/activate`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Run the EDA notebook: `jupyter notebook EDA.ipynb`
-5. Test the model: `python test_model.py`
+5. Test the model: `python test_model.py`t
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For questions or support, please open an issue on GitHub or contact the development team.
