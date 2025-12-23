@@ -20,7 +20,7 @@ ALGORITHM = "HS256"
 
 router = APIRouter()
 
-model = joblib.load("/Users/lait-zet/Desktop/RetentionAI-Employee-Attrition-Predictor-HR-Assistant/ml/model_predictor.pkl")
+model = joblib.load("/Users/lait-zet/Desktop/RetentionAI-Employee-Attrition-Predictor-HR-Assistant/ml/model.pkl")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -176,18 +176,17 @@ Contexte :
 Un salarié identifié par le système présente un risque élevé de départ
 (churn_probability = {churn_probability * 100}%).
 
-Tâche :
+Tache :
 Propose 3 actions concrètes et applicables
 pour améliorer la rétention de ce salarié.
 
-Réponds uniquement par 3 actions,
+Rponds uniquement par 3 actions,
 une par ligne.
 """
 
     actions = generate_retention_actions(prompt)
 
     return {
-        "user_id": payload.user_id,
         "churn_probability": churn_probability,
         "retention_plan": actions
     }
