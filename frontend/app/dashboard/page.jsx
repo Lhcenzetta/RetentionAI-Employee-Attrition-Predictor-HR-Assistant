@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 export default function AnalysePage() {
   const router = useRouter();
 
-  /* ================= STATE ================= */
   const [form, setForm] = useState({
     Age: "",
     BusinessTravel: "Travel_Rarely",
@@ -37,20 +36,19 @@ export default function AnalysePage() {
   const [retentionPlan, setRetentionPlan] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= AUTH GUARD ================= */
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) router.push("/login");
   }, [router]);
 
-  /* ================= LOGOUT HANDLER ================= */
+ 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
-    router.replace("/login"); // .replace empêche l'utilisateur de revenir en arrière
+    router.replace("/login"); 
   };
 
-  /* ================= FORM HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -116,8 +114,7 @@ export default function AnalysePage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] p-6 md:p-12 text-slate-900">
       <div className="max-w-7xl mx-auto">
-        
-        {/* HEADER WITH LOGOUT */}
+  
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Employee Churn Analysis 🔍</h1>
@@ -133,10 +130,9 @@ export default function AnalysePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-          {/* ================= LEFT: FORM ================= */}
+      
           <form onSubmit={handleSubmit} className="lg:col-span-8 space-y-8">
             
-            {/* 1. Personal */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6">1. Demographics</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -162,7 +158,7 @@ export default function AnalysePage() {
               </div>
             </div>
 
-            {/* 2. Employment */}
+           
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6">2. Employment Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -208,7 +204,7 @@ export default function AnalysePage() {
               </div>
             </div>
 
-            {/* 3. Education */}
+            
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6">3. Education</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -236,7 +232,7 @@ export default function AnalysePage() {
               </div>
             </div>
 
-            {/* 5. Company Experience */}
+         
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6">5. Tenure & Experience</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -260,7 +256,7 @@ export default function AnalysePage() {
             </button>
           </form>
 
-          {/* ================= RIGHT: RESULT ================= */}
+        
           <div className="lg:col-span-4 lg:sticky lg:top-12">
             <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
               <div className="p-8">

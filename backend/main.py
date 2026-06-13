@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from api import autho
-from generateback.base import Base,engine
+# from generateback.base import Base,engine
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
 
 app = FastAPI()
 
