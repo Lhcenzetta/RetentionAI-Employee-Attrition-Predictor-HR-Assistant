@@ -11,9 +11,7 @@ RetentionAI is an AI-powered HR assistant designed to predict employee attrition
 - **AI-Powered Recommendations**: Integration with Google Gemini for personalized retention strategies
 - **Data Visualization**: Exploratory data analysis with graphs and charts
 - **RESTful API**: Backend API for seamless integration
-
 ## Tech Stack
-
 ### Backend
 - **FastAPI**: High-performance web framework for building APIs
 - **SQLAlchemy**: ORM for database interactions
