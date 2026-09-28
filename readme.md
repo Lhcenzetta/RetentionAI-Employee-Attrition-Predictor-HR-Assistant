@@ -80,7 +80,6 @@ RetentionAI-Employee-Attrition-Predictor-HR-Assistant/
 ## Prerequisites
 
 Before running this application, ensure you have the following installed:
-
 - **Docker**: Version 20.10 or later
 - **Docker Compose**: Version 2.0 or later
 - **Git**: For cloning the repository
