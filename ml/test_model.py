@@ -6,7 +6,8 @@ import numpy as np
 def model():
     path = "/Users/lait-zet/Desktop/RetentionAI-Employee-Attrition-Predictor-HR-Assistant/ml/model_predictor.pkl"
     return joblib.load(path)
-
+def check ():
+    return none
 def test_model_loading(model):
     assert model != None
 
