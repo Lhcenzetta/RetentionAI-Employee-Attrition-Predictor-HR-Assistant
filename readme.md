@@ -1,7 +1,5 @@
 # RetentionAI: Employee Attrition Predictor & HR Assistant
-
 ## Overview
-
 RetentionAI is an AI-powered HR assistant designed to predict employee attrition and provide insights to help organizations retain talent. The application combines machine learning models with a user-friendly web interface to analyze employee data and generate actionable recommendations.
 
 ## Features
